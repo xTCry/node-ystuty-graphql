@@ -13,10 +13,7 @@ export class Server {
 
     constructor(port: number = 4000) {
         this.port = port;
-        this.init();
-    }
 
-    private init() {
         this.expressApp = new App();
         this.apolloServer = createApolloServer(this, {});
         this.serverInstance = createServer(this.expressApp.appInstance);
@@ -32,7 +29,7 @@ export class Server {
         }
 
         this.serverInstance.listen({ port: this.port }, () => {
-            const addressInfo: any = this.serverInstance && this.serverInstance.address();
+            const addressInfo: any = this.serverInstance?.address();
             const port: number = 'port' in addressInfo ? addressInfo.port : null;
             const address: string =
                 'address' in addressInfo

@@ -1,0 +1,176 @@
+"""Date custom scalar type"""
+scalar Date
+
+type Query {
+  """Ping-pong"""
+  hello: String
+
+  """Список институтов"""
+  institutions: [InstitutData]
+  groups: CGroup
+  rollDice(numDice: Int, numSides: Int): [Int]
+}
+
+"""Данные об институте"""
+type InstitutData {
+  name: String!
+  groups: [GroupData]
+}
+
+"""Данные о группе"""
+type GroupData {
+  """Название группы"""
+  name: String!
+
+  """Ссылка на расписание группы"""
+  link: String!
+
+  """Ссылка на расписание лекционной недели группы"""
+  linkLecture: String
+}
+
+"""Класс групп"""
+type CGroup {
+  """Список групп из всех институтов"""
+  all: [GroupData]
+
+  """Получить расписание по названию группы"""
+  get(name: String!, weekNumber: Int): [IWeek]
+}
+
+"""Расписание на неделю"""
+type IWeek {
+  """Номер недели"""
+  number: Int!
+
+  """Расписание по дням"""
+  days: [IDay]!
+}
+
+"""Расписание на день"""
+type IDay {
+  info: IWeekDay!
+
+  """Предметы"""
+  lessons: [ILesson]!
+}
+
+"""Информация"""
+type IWeekDay {
+  """Название?.."""
+  name: String!
+  type: WeekNumber
+  date: Date
+
+  """Дата"""
+  dateStr: String
+
+  """Номер недели"""
+  weekNumber: Int
+  parity: WeekParity
+}
+
+"""День недели"""
+enum WeekNumber {
+  """Пн"""
+  Monday
+
+  """Вт"""
+  Tuesday
+
+  """Ср"""
+  Wednesday
+
+  """Чт"""
+  Thursday
+
+  """Пт"""
+  Friday
+
+  """Сб"""
+  Saturday
+
+  """Вс"""
+  Sunday
+}
+
+"""Четность недели"""
+enum WeekParity {
+  """День недели может быть любым"""
+  CUSTOM
+
+  """День недели должен быть нечетный"""
+  ODD
+
+  """День недели должен быть четный"""
+  EVEN
+}
+
+"""Предмет"""
+type ILesson {
+  """Порядковый номер пары на дню"""
+  number: Int!
+
+  """Временной интервал пары"""
+  time: String!
+
+  """
+  Оригинальная строка с порядковым номером пары на дню со интервалом времени
+  """
+  originalTimeTitle: String!
+
+  """Название предмета пары"""
+  lessonName: String
+  parity: WeekParity!
+
+  """Дата"""
+  range: [Int]
+  type: LessonFlags!
+
+  """Со звездой"""
+  isStar: Boolean!
+
+  """Длительность пары"""
+  duration: Int!
+
+  """Есть ли разделение по подгруппам"""
+  isDivision: Boolean!
+
+  """Буква корпуса, номер аудитори"""
+  auditoryName: String
+
+  """ФИО преподователя"""
+  teacherName: String
+
+  """Дополнительная инфа"""
+  subInfo: subInfo
+
+  """Оригинальная строка из расписания"""
+  original: String!
+}
+
+"""Тип пары"""
+enum LessonFlags {
+  """Нету"""
+  None
+
+  """Лекция"""
+  Lecture
+
+  """Практика"""
+  Practical
+
+  """Лабораторная"""
+  Labaratory
+
+  """Курсовая"""
+  CourseProject
+}
+
+type subInfo {
+  """Дата"""
+  range: [Int]
+
+  """Буква корпуса, номер аудитори"""
+  auditoryName: String
+}

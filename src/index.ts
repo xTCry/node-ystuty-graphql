@@ -1,3 +1,4 @@
+import './lib/schema-generator';
 import { Server } from './lib/server';
 
 (async () => {

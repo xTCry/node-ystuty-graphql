@@ -11,12 +11,8 @@ export class App {
 
     constructor() {
         this.appInstance = express();
-        this._init();
-    }
 
-    private _init() {
         this.appInstance.disable('x-powered-by');
-
         this.appInstance.use(morgan('dev'));
         this.appInstance.use(cors());
     }
@@ -36,23 +32,42 @@ export class App {
         });
 
         // Error handler
-        this.appInstance.use((err: any, req: Request, res: Response, _next: NextFunction): void => {
-            log.watch(err.toString());
+        this.appInstance.use((error: any, _req: Request, res: Response, _next: NextFunction): void => {
+            log.watch(error.toString());
 
-            if (err.statusCode) {
-                res.status(err.statusCode).json(err);
+            if (res.headersSent) {
+                console.error(error);
+                res.end();
                 return;
             }
 
-            if (err.isBoom) {
-                const { statusCode, payload } = err.output;
-                res.status(statusCode).json(payload);
+            if (error.statusCode) {
+                res.status(error.statusCode).json(error);
                 return;
             }
 
-            const defaultError = Boom.badImplementation(err.message || 'An internal server error occurred');
-            const { statusCode, payload } = defaultError.output;
-            res.status(statusCode).json(payload);
+            const errorMessage = error.message || 'An internal server error occurred';
+            const defaultError = Boom.badImplementation(errorMessage);
+            const { statusCode, payload } = error.isBoom ? error.output : defaultError.output;
+            
+            res.status(error.statusCode || statusCode);
+            res.format({
+                plain() {
+                    res.send(errorMessage);
+                },
+
+                html() {
+                    res.send(`<h1>Error</h1><p>${errorMessage}</p>`);
+                },
+
+                json() {
+                    res.send(payload);
+                },
+
+                default() {
+                    res.status(406).send('Not Acceptable');
+                },
+            });
         });
     }
 }

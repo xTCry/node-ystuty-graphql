@@ -7,6 +7,7 @@ import { Server } from './server';
 const PLAYGROUND_ENABLED = process.env.PLAYGROUND_ENABLED === 'true';
 
 const ValidateToken = async (str: string) => {
+    // decode JWT
     return {
         data: {
             username: 'TEST',
@@ -25,9 +26,9 @@ const createApolloServer = (server: Server, config?: ApolloServerExpressConfig):
             // Allow GraphQL playground on localhost
             const originUrl: string = `localhost:${server.port}${req.baseUrl}`;
             const reg: RegExp = new RegExp(`${originUrl}$`, 'gi');
-            const isPlayground: boolean = reg.test(String(req.headers.referer));
+            const isLocalPlayground: boolean = reg.test(String(req.headers.referer));
 
-            if (PLAYGROUND_ENABLED && isPlayground) {
+            if (PLAYGROUND_ENABLED && !isLocalPlayground) {
                 const username = get(req, 'headers.username');
 
                 if (!username) {
